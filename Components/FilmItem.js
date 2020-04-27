@@ -10,7 +10,7 @@ class FilmItem extends React.Component {
             // View globale
             <TouchableOpacity 
                 style={ styles.global } 
-                onPress={() => displayDetailForFilm(film)}>
+                onPress={() => displayDetailForFilm(film.id)}>
                 <Image 
                     style={ styles.image }
                     source={{uri: getImageFromApi(film.poster_path)}}

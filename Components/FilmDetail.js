@@ -1,34 +1,35 @@
 import React from 'react'
-import { StyleSheet, View, Text, Image } from 'react-native'
-import { getImageFromApi } from '../API/TMDBApi'
-import { ScrollView } from 'react-native-gesture-handler'
-import numeral from 'numeral'
-import moment from 'moment'
+import { StyleSheet, View, Text, Image, ActivityIndicator } from 'react-native'
 
 class FilmDetail extends React.Component {
+    // State
+    constructor(props) {
+        super(props)
+        this.state = {
+          film: undefined, // Pour l'instant on n'a pas les infos du film, on initialise donc le film à undefined.
+          isLoading: true // A l'ouverture de la vue, on affiche le chargement, le temps de récupérer le détail du film
+        }
+    }
+
+    // Loading
+    _displayLoading = () => {
+        if(this.state.isLoading) {
+            return (
+                <View style={styles.loading_container}>
+                    <ActivityIndicator size='large'/>
+                </View>
+            )
+        }
+    }
+
+    // Render
     render() {
-        const film = this.props.navigation.state.params.filmDatas
+        const film = this.props.navigation.state.params.idFilm
         console.log(film)
         return (
-            <ScrollView style={styles.main_container}>
-                <Image 
-                    style={ styles.image }
-                    source={{uri: getImageFromApi(film.poster_path)}}
-                    >
-                </Image>
-                <View style={ styles.overview_container }>
-                    <Text style={ styles.overview_title }>{ film.title }</Text>
-                    <Text style={ styles.overview_description }>{ film.overview }</Text>
-                </View>
-                <View style={ styles.informations_container }>
-                    <Text>Sorti le { film.release_date }</Text>
-                    <Text>Note : { film.vote_average }</Text>
-                    <Text>Nombre de votes : { film.vote_count }</Text>
-                    <Text>Budget : {numeral(film.budget).format('0,0[.]00 $')}</Text>
-                    <Text>Genre(s) : { film.genres }</Text>
-                    <Text>Companie(s) :</Text>
-                </View>
-            </ScrollView>
+            <View style={styles.main_container}>
+                {this._displayLoading()}
+            </View>
         )
     }
 }
@@ -36,7 +37,15 @@ class FilmDetail extends React.Component {
 const styles = StyleSheet.create({
     main_container: {
         flex: 1,
-        height: 190,
+    },
+    loading_container: {
+        position: 'absolute',
+        left: 0,
+        right: 0,
+        top: 0,
+        bottom: 0,
+        alignItems: 'center',
+        justifyContent: 'center'
     },
     image: {
         height: 169,

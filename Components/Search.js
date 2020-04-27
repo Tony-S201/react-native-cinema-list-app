@@ -58,8 +58,8 @@ class Search extends React.Component {
         }
     }
 
-    _displayDetailForFilm = (film) => {
-        this.props.navigation.navigate("FilmDetail", { filmDatas: film })
+    _displayDetailForFilm = (id) => {
+        this.props.navigation.navigate("FilmDetail", { idFilm: id })
     }
 
     // Template

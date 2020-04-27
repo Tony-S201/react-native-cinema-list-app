@@ -1,14 +1,26 @@
 import React from 'react'
 import { StyleSheet, View, Text, Image, ActivityIndicator } from 'react-native'
+import { getFilmDetailFromApi } from '../API/TMDBApi'
+import { ScrollView } from 'react-native-gesture-handler'
 
 class FilmDetail extends React.Component {
     // State
     constructor(props) {
         super(props)
         this.state = {
-          film: undefined, // Pour l'instant on n'a pas les infos du film, on initialise donc le film à undefined.
+          film: '', // Pour l'instant on n'a pas les infos du film, on initialise donc le film à undefined.
           isLoading: true // A l'ouverture de la vue, on affiche le chargement, le temps de récupérer le détail du film
         }
+    }
+    
+    componentDidMount() {
+        console.log(this.props.navigation.state.params.idFilm)
+        getFilmDetailFromApi(this.props.navigation.state.params.idFilm).then(data => {
+            this.setState({
+                film: data,
+                isLoading: false,
+            })
+        })
     }
 
     // Loading
@@ -22,16 +34,28 @@ class FilmDetail extends React.Component {
         }
     }
 
+    // Display films
+    _displayFilm() {
+        if(this.state != '') {
+            console.log(this.state)
+            return (
+                <ScrollView>
+                    <Text>{this.state.film.title}</Text>
+                </ScrollView>
+            )
+        }
+    }
+
     // Render
     render() {
-        const film = this.props.navigation.state.params.idFilm
-        console.log(film)
         return (
             <View style={styles.main_container}>
                 {this._displayLoading()}
+                {this._displayFilm()}
             </View>
         )
     }
+
 }
 
 const styles = StyleSheet.create({

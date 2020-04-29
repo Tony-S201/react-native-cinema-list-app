@@ -1,21 +1,25 @@
 import React from 'react'
 import { StyleSheet, View, Text, Image, ActivityIndicator } from 'react-native'
-import { getFilmDetailFromApi } from '../API/TMDBApi'
+import { getFilmDetailFromApi, getImageFromApi } from '../API/TMDBApi'
 import { ScrollView } from 'react-native-gesture-handler'
+import moment from 'moment'
+import numeral from 'numeral'
 
 class FilmDetail extends React.Component {
     // State
     constructor(props) {
         super(props)
         this.state = {
-          film: '', // Pour l'instant on n'a pas les infos du film, on initialise donc le film à undefined.
-          isLoading: true // A l'ouverture de la vue, on affiche le chargement, le temps de récupérer le détail du film
+          film: null,
+          isLoading: false,
         }
     }
     
     componentDidMount() {
-        console.log(this.props.navigation.state.params.idFilm)
-        getFilmDetailFromApi(this.props.navigation.state.params.idFilm).then(data => {
+        const { navigation } = this.props;
+        this.setState({ isLoading: true });
+
+        getFilmDetailFromApi(navigation.state.params.idFilm).then(data => {
             this.setState({
                 film: data,
                 isLoading: false,
@@ -23,24 +27,38 @@ class FilmDetail extends React.Component {
         })
     }
 
-    // Loading
-    _displayLoading = () => {
-        if(this.state.isLoading) {
+    // Display films
+    _displayFilm() {
+        const { film, isLoading } = this.state
+
+        if(isLoading) {
             return (
                 <View style={styles.loading_container}>
                     <ActivityIndicator size='large'/>
                 </View>
             )
         }
-    }
 
-    // Display films
-    _displayFilm() {
-        if(this.state != '') {
-            console.log(this.state)
+        if(film != undefined) {
             return (
                 <ScrollView>
-                    <Text>{this.state.film.title}</Text>
+                    <Image style={styles.image} source={{uri: getImageFromApi(film.backdrop_path)}}/>
+                    <View style={styles.overview_container}>
+                        <Text style={styles.overview_title}>{film.title}</Text>
+                        <Text style={styles.overview_description}>{film.overview}</Text>
+                    </View>
+                    <View style={styles.informations_container}>
+                        <Text>Sorti le {moment(new Date(film.release_date)).format('DD/MM/YYYY')}</Text>
+                        <Text>Note : {film.vote_average}</Text>
+                        <Text>Nombre de votes : {film.vote_count}</Text>
+                        <Text>Budget : {numeral(film.budget).format('0,0[.]00 $')}</Text>
+                        <Text>Genre(s) : {(film && film.genres) && film.genres.map((item) => {
+                            return item.name;
+                        }).join(" / ")}</Text>
+                        <Text>Companie(s) : {(film && film.genres) && film.production_companies.map((item) => {
+                            return item.name;
+                        }).join(" / ")}</Text>
+                    </View>
                 </ScrollView>
             )
         }
@@ -50,7 +68,6 @@ class FilmDetail extends React.Component {
     render() {
         return (
             <View style={styles.main_container}>
-                {this._displayLoading()}
                 {this._displayFilm()}
             </View>
         )
@@ -85,9 +102,14 @@ const styles = StyleSheet.create({
     },
     overview_description: {
         margin: 15,
+        fontStyle: 'italic',
+        color: '#666666',
     },
     informations_container: {
         margin: 15,
+    },
+    informations_text: {
+        fontStyle: 'italic',
     }
 
 })
